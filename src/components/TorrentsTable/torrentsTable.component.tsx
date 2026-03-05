@@ -22,10 +22,20 @@ import { Announcer as AnnouncerType } from '../../modules/joal-api/types'
 
 
 function desc<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
+  let valA = a[orderBy];
+  let valB = b[orderBy];
+
+  if (orderBy === 'torrentName' && typeof a === 'object' && a !== null && 'fileName' in a) {
+    const announcerA = a as unknown as AnnouncerType;
+    const announcerB = b as unknown as AnnouncerType;
+    valA = (announcerA.fileName || announcerA.torrentName) as unknown as T[keyof T];
+    valB = (announcerB.fileName || announcerB.torrentName) as unknown as T[keyof T];
+  }
+
+  if (valB < valA) {
     return -1;
   }
-  if (b[orderBy] > a[orderBy]) {
+  if (valB > valA) {
     return 1;
   }
   return 0;
