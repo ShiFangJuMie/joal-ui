@@ -17,7 +17,7 @@ import TimeUntilAnnounceProgressBar from './ProgressBar/TimeUntilAnnounceProgres
 
 import { Announcer as AnnouncerType } from '../../../modules/joal-api/types';
 
-const useStyles = makeStyles((theme: Theme) => 
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       paddingTop: theme.spacing(1),
@@ -75,9 +75,10 @@ const Announcer: React.FC<AnnouncerProps> = (props) => {
 
 
   const maxAllowedTorrentNameLength = (componentBreakpoint === 'xs' || componentBreakpoint === 'sm') ? 70 : 175;
-  let trimedTorrentName = announcer.torrentName;
-  if (announcer.torrentName.length > maxAllowedTorrentNameLength) {
-    trimedTorrentName = `${announcer.torrentName.substring(0, maxAllowedTorrentNameLength)}...`;
+  const displayName = announcer.fileName || announcer.torrentName;
+  let trimedTorrentName = displayName;
+  if (displayName.length > maxAllowedTorrentNameLength) {
+    trimedTorrentName = `${displayName.substring(0, maxAllowedTorrentNameLength)}...`;
   }
 
   return (

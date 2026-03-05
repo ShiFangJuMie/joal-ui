@@ -47,7 +47,10 @@ const getFiltering = (searchFilter: string): (a: AnnouncerType) => boolean => {
   if (searchFilter === '' || searchFilter === undefined) {
     return a => true
   }
-  return a => a.torrentName.toLowerCase().includes(searchFilter.toLowerCase())
+  return a => {
+    const searchTarget = (a.fileName || a.torrentName).toLowerCase();
+    return searchTarget.includes(searchFilter.toLowerCase());
+  }
 }
 
 
@@ -127,17 +130,17 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
       <Grid item className={classes.sortActionsContainer}>
         <ToggleButtonGroup className={`${classes.sortButtonGroup}`} selected={orderBy !== undefined} value={orderBy} exclusive onChange={(e, v) => onClickSort(e, v)}>
           <Tooltip title="Sort by name" placement="top">
-            <ToggleButton classes={orderBy === undefined ? {root: classes.toogleButtonWhenNoSortSelection}: {}} selected={orderBy === 'torrentName'} value="torrentName">
+            <ToggleButton classes={orderBy === undefined ? { root: classes.toogleButtonWhenNoSortSelection } : {}} selected={orderBy === 'torrentName'} value="torrentName">
               <NameIcon />
             </ToggleButton>
           </Tooltip>
           <Tooltip title="Sort by leechers" placement="top">
-            <ToggleButton classes={orderBy === undefined ? {root: classes.toogleButtonWhenNoSortSelection}: {}} selected={orderBy === 'lastKnownLeechers'} value="lastKnownLeechers">
+            <ToggleButton classes={orderBy === undefined ? { root: classes.toogleButtonWhenNoSortSelection } : {}} selected={orderBy === 'lastKnownLeechers'} value="lastKnownLeechers">
               <LeechersIcon />
             </ToggleButton>
           </Tooltip>
           <Tooltip title="Sort by seeders" placement="top">
-            <ToggleButton classes={orderBy === undefined ? {root: classes.toogleButtonWhenNoSortSelection}: {}} selected={orderBy === 'lastKnownSeeders'} value="lastKnownSeeders">
+            <ToggleButton classes={orderBy === undefined ? { root: classes.toogleButtonWhenNoSortSelection } : {}} selected={orderBy === 'lastKnownSeeders'} value="lastKnownSeeders">
               <SeedersIcon />
             </ToggleButton>
           </Tooltip>
@@ -155,7 +158,7 @@ const EnhancedTableToolbar = () => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) => 
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     announersList: {
       marginTop: theme.spacing(1),
@@ -225,13 +228,13 @@ function EnhancedTable(props: AnnouncerTableProps) {
             .sort(getSorting(order, orderBy))
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .map(announcer => {
-                return (
-                  <div
-                    key={announcer.infoHash}
-                  >
-                    <Announcer className={classes.announcer} announcer={announcer} onClickDeleteTorrent={onClickDeleteTorrent} />
-                  </div>
-                )
+              return (
+                <div
+                  key={announcer.infoHash}
+                >
+                  <Announcer className={classes.announcer} announcer={announcer} onClickDeleteTorrent={onClickDeleteTorrent} />
+                </div>
+              )
             })
           }
         </Grid>
@@ -250,7 +253,7 @@ function EnhancedTable(props: AnnouncerTableProps) {
             }}
             onChangePage={handleChangePage}
             onChangeRowsPerPage={handleChangeRowsPerPage}
-          /> 
+          />
         </Grid>
       </Grid>
     </div>

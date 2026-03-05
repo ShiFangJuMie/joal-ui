@@ -25,6 +25,7 @@ export interface Stomp {
 export interface Announcer {
   infoHash: string,
   torrentName: string,
+  fileName: string,
   torrentSize: number,
   lastKnownInterval: number,
   consecutiveFails: number,
