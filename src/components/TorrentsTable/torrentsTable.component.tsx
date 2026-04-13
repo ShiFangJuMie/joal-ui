@@ -16,6 +16,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import NameIcon from '@material-ui/icons/SortByAlpha';
 import LeechersIcon from '@material-ui/icons/CloudDownloadOutlined';
 import SeedersIcon from '@material-ui/icons/CloudUploadOutlined';
+import WhatshotIcon from '@material-ui/icons/Whatshot';
 import Announcer from './Announcer';
 
 import { Announcer as AnnouncerType } from '../../modules/joal-api/types'
@@ -70,6 +71,8 @@ interface EnhancedTableHeadProps {
   order: Order,
   orderBy?: keyof AnnouncerType
   onRequestSort: (order: Order, property?: keyof AnnouncerType) => void
+  potentialsFilter: boolean,
+  onRequestPotentialsFilter: (potentialsFilter: boolean) => void
 }
 
 const tableHeadUseStyles = makeStyles((theme: Theme) => ({
@@ -105,7 +108,9 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
     onRequestSearch,
     order,
     orderBy,
-    onRequestSort
+    onRequestSort,
+    potentialsFilter,
+    onRequestPotentialsFilter
   } = props;
   const classes = tableHeadUseStyles({ hasSortSelected: orderBy !== undefined });
 
@@ -137,7 +142,7 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
           </IconButton>
         </Paper>
       </Grid>
-      <Grid item className={classes.sortActionsContainer}>
+      <Grid item className={classes.sortActionsContainer} style={{ display: 'flex', alignItems: 'center' }}>
         <ToggleButtonGroup className={`${classes.sortButtonGroup}`} selected={orderBy !== undefined} value={orderBy} exclusive onChange={(e, v) => onClickSort(e, v)}>
           <Tooltip title="Sort by name" placement="top">
             <ToggleButton classes={orderBy === undefined ? { root: classes.toogleButtonWhenNoSortSelection } : {}} selected={orderBy === 'torrentName'} value="torrentName">
@@ -155,6 +160,17 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
             </ToggleButton>
           </Tooltip>
         </ToggleButtonGroup>
+        <span style={{ width: '8px' }} />
+        <Tooltip title="筛选优质种子: seeder <= 5 且 leechers > 0" placement="top">
+          <ToggleButton 
+            value="potentialsFilter" 
+            selected={potentialsFilter} 
+            onChange={() => onRequestPotentialsFilter(!potentialsFilter)}
+            style={potentialsFilter ? { backgroundColor: 'rgba(255, 0, 0, 0.1)', color: 'red' } : { borderColor: 'transparent' }}
+          >
+            <WhatshotIcon />
+          </ToggleButton>
+        </Tooltip>
       </Grid>
     </Grid>
   );
@@ -197,6 +213,7 @@ function EnhancedTable(props: AnnouncerTableProps) {
   const [search, setSearch] = React.useState<string>('');
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<undefined | keyof AnnouncerType>(undefined);
+  const [potentialsFilter, setPotentialsFilter] = React.useState<boolean>(false);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const { announcers, onClickDeleteTorrent } = props;
@@ -230,11 +247,14 @@ function EnhancedTable(props: AnnouncerTableProps) {
         order={order}
         orderBy={orderBy}
         onRequestSort={handleRequestSort}
+        potentialsFilter={potentialsFilter}
+        onRequestPotentialsFilter={setPotentialsFilter}
       />
       <Grid container spacing={1}>
         <Grid item xs={12} className={classes.announersList}>
           {announcers
             .filter(getFiltering(search))
+            .filter(announcer => potentialsFilter ? ((announcer.lastKnownSeeders || 0) <= 5 && (announcer.lastKnownLeechers || 0) > 0) : true)
             .sort(getSorting(order, orderBy))
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .map(announcer => {
