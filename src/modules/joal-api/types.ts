@@ -8,7 +8,8 @@ export interface ApiState {
 }
 
 export interface TorrentFile {
-  infoHash: string
+  infoHash: string,
+  comment?: string
 }
 
 export interface Client {
@@ -32,7 +33,8 @@ export interface Announcer {
   lastAnnouncedAt?: string,
   lastKnownLeechers?: number,
   lastKnownSeeders?: number,
-  isFetching: boolean
+  isFetching: boolean,
+  comment?: string
 };
 
 export interface Config {

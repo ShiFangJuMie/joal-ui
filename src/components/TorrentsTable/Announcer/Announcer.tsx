@@ -112,6 +112,7 @@ const Announcer: React.FC<AnnouncerProps> = (props) => {
             className={classes.peersStats}
             leechers={announcer.lastKnownLeechers}
             seeders={announcer.lastKnownSeeders}
+            comment={announcer.comment}
           />
         </Grid>
         <Grid item xs>

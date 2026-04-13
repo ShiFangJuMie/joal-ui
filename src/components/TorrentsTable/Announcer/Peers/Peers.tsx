@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
@@ -14,6 +21,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     seeders: {
       color: theme.palette.primary.light
+    },
+    commentActionBtn: {
+      padding: 0,
+      marginLeft: 8,
+      color: theme.palette.primary.light
     }
   })
 );
@@ -21,16 +33,38 @@ const useStyles = makeStyles((theme: Theme) =>
 type PeerStatsProps = {
   className?: string,
   leechers?: number,
-  seeders?: number
+  seeders?: number,
+  comment?: string
 };
 
 const PeerStats: React.FC<PeerStatsProps> = (props) => {
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
   const {
-    className: classNameProps, leechers, seeders
+    className: classNameProps, leechers, seeders, comment
   } = props;
   const leechersText = (leechers === null || leechers === undefined) ? '?' : leechers;
   const seedersText = (seeders === null || seeders === undefined) ? '?' : seeders;
+
+  let urlInComment = '';
+  if (comment) {
+    const match = comment.match(/(https?:\/\/[^\s]+)/);
+    if (match) {
+      urlInComment = match[0];
+    }
+  }
+
+  const handleOpenUrl = () => {
+    window.open(urlInComment, '_blank');
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Grid container direction="row" className={classnames(classes.root, classNameProps)}>
@@ -47,6 +81,35 @@ const PeerStats: React.FC<PeerStatsProps> = (props) => {
             {` ${seedersText}`}
           </span>
         </Tooltip>
+
+        {comment && urlInComment && (
+          <Tooltip title="Open URL in comment" placement="top">
+            <IconButton className={classes.commentActionBtn} onClick={handleOpenUrl}>
+              <i className="fa fa-external-link" aria-hidden="true" style={{ fontSize: 14 }} />
+            </IconButton>
+          </Tooltip>
+        )}
+        {comment && !urlInComment && (
+          <Tooltip title="View comment" placement="top">
+            <IconButton className={classes.commentActionBtn} onClick={handleClickOpen}>
+              <i className="fa fa-commenting-o" aria-hidden="true" style={{ fontSize: 14 }} />
+            </IconButton>
+          </Tooltip>
+        )}
+
+        <Dialog open={open} onClose={handleClose} aria-labelledby="comment-dialog-title">
+          <DialogTitle id="comment-dialog-title">Torrent Comment</DialogTitle>
+          <DialogContent style={{ minWidth: 300 }}>
+            <DialogContentText style={{ userSelect: 'all', wordBreak: 'break-all' }}>
+              {comment}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </Grid>
   );
@@ -54,7 +117,8 @@ const PeerStats: React.FC<PeerStatsProps> = (props) => {
 PeerStats.defaultProps = {
   className: '',
   leechers: undefined,
-  seeders: undefined
+  seeders: undefined,
+  comment: undefined
 };
 
 export default PeerStats;
